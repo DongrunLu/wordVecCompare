@@ -160,33 +160,79 @@ for _CORPUS in ${CORPUS[@]}; do
             echo ${cmd}
             eval ${cmd}
             # 03.softmax
-            cmd="(time ${SRC_CUR_BIN} ${_MODEL} -input ${_SRC_CORPUS} -lr 0.025 -dim ${_VECSIZE}  \
-                            -ws 5 -epoch ${ITER} -minCount 5  -loss softmax -neg 0 -thread ${THREADS} -t 1e-4 -verbose 0 \
-                            -output "${SRC_CUR_OUTPUT}"fastText_"${_CORPUS}"_${_MODEL}_softmax_size"${_VECSIZE}")"
-            echo ${cmd}
-            eval ${cmd}
+            # cmd="(time ${SRC_CUR_BIN} ${_MODEL} -input ${_SRC_CORPUS} -lr 0.025 -dim ${_VECSIZE}  \
+            #                 -ws 5 -epoch ${ITER} -minCount 5  -loss softmax -neg 0 -thread ${THREADS} -t 1e-4 -verbose 0 \
+            #                 -output "${SRC_CUR_OUTPUT}"fastText_"${_CORPUS}"_${_MODEL}_softmax_size"${_VECSIZE}")"
+            # echo ${cmd}
+            # eval ${cmd}
         done
     done
 done
 
+##
+# 2. nnlm
+##
+SRC_CUR_OUTPUT=${SRC_OUTPUT}"/nnlm/"
+mkdir -p ${SRC_CUR_OUTPUT}
+SRC_CUR_BIN=${SRC_BIN}"nnlm/nnlm"
+CUR_DATE=`date '+%Y:%m:%d %H:%M:%S'`
+echo ${CUR_DATE}" Running [nnlm] model"
+MODEL=( "cbow" "skipgram" )
+for _CORPUS in ${CORPUS[@]}; do
+    echo ${_CORPUS}
+    _SRC_CORPUS=${SRC_CORPUS}${_CORPUS}
+    for _VECSIZE in ${VECSIZE[@]}; do
+        for _MODEL in ${MODEL[@]}; do
+        cmd="(time ${SRC_CUR_BIN} -train ${_SRC_CORPUS} -cbow ${CUR_MODEL} -debug 0\
+                            -hs 1 -negative 0 -iter ${ITER} -window 5\
+                            -size ${_VECSIZE} -threads ${THREADS} -sample 1e-4\
+                            -binary 0 -save-vocab ${SRC_CUR_OUTPUT}${_CORPUS}_vocab.txt \
+                            -output "${SRC_CUR_OUTPUT}"nnlm_"${_CORPUS}"_${_MODEL}_hs_size"${_VECSIZE}".vec)"
+        echo ${cmd}
+        eval ${cmd}
+        cmd="(time ${SRC_CUR_BIN} -train ${_SRC_CORPUS} -cbow ${CUR_MODEL} -debug 0\
+                            -hs 0 -negative 5 -iter ${ITER} -window 5\
+                            -size ${_VECSIZE} -threads ${THREADS} -sample 1e-4\
+                            -binary 0 -save-vocab ${SRC_CUR_OUTPUT}${_CORPUS}_vocab.txt \
+                            -output "${SRC_CUR_OUTPUT}"nnlm_"${_CORPUS}"_${_MODEL}_ns_size"${_VECSIZE}".vec)"
+        echo ${cmd}
+        eval ${cmd}
+      done
+    done
+done
 
-# SRC_CUR_OUTPUT=${SRC_OUTPUT}"nnlm"
-# mkdir ${SRC_CUR_OUTPUT}
-# SRC_CUR_BIN=${SRC_BIN}"nnlm"
-# CUR_DATE=`date '+%Y:%m:%d %H:%M:%S'`
-# echo ${CUR_DATE}" Running [nnlm] model"
+##
+# 3. lbl
+##
+SRC_CUR_OUTPUT=${SRC_OUTPUT}"/lbl/"
+mkdir -p ${SRC_CUR_OUTPUT}
+SRC_CUR_BIN=${SRC_BIN}"lbl/lbl"
+CUR_DATE=`date '+%Y:%m:%d %H:%M:%S'`
+echo ${CUR_DATE}" Running [lbl] model"
+MODEL=( "cbow" "skipgram" )
+for _CORPUS in ${CORPUS[@]}; do
+    echo ${_CORPUS}
+    _SRC_CORPUS=${SRC_CORPUS}${_CORPUS}
+    for _VECSIZE in ${VECSIZE[@]}; do
+        for _MODEL in ${MODEL[@]}; do
+        cmd="(time ${SRC_CUR_BIN} -train ${_SRC_CORPUS} -cbow ${CUR_MODEL} -debug 0\
+                            -hs 1 -negative 0 -iter ${ITER} -window 5\
+                            -size ${_VECSIZE} -threads ${THREADS} -sample 1e-4\
+                            -binary 0 -save-vocab ${SRC_CUR_OUTPUT}${_CORPUS}_vocab.txt \
+                            -output "${SRC_CUR_OUTPUT}"lbl_"${_CORPUS}"_${_MODEL}_hs_size"${_VECSIZE}".vec)"
+        echo ${cmd}
+        eval ${cmd}
+        cmd="(time ${SRC_CUR_BIN} -train ${_SRC_CORPUS} -cbow ${CUR_MODEL} -debug 0\
+                            -hs 0 -negative 5 -iter ${ITER} -window 5\
+                            -size ${_VECSIZE} -threads ${THREADS} -sample 1e-4\
+                            -binary 0 -save-vocab ${SRC_CUR_OUTPUT}${_CORPUS}_vocab.txt \
+                            -output "${SRC_CUR_OUTPUT}"lbl_"${_CORPUS}"_${_MODEL}_ns_size"${_VECSIZE}".vec)"
+        echo ${cmd}
+        eval ${cmd}
+      done
+    done
+done
 
-# SRC_CUR_OUTPUT=${SRC_OUTPUT}"cw"
-# mkdir ${SRC_CUR_OUTPUT}
-# SRC_CUR_BIN=${SRC_BIN}"cw"
-# CUR_DATE=`date '+%Y:%m:%d %H:%M:%S'`
-# echo ${CUR_DATE}" Running [cw] model"
-
-# SRC_CUR_OUTPUT=${SRC_OUTPUT}"lbl"
-# mkdir ${SRC_CUR_OUTPUT}
-# SRC_CUR_BIN=${SRC_BIN}"lbl"
-# CUR_DATE=`date '+%Y:%m:%d %H:%M:%S'`
-# echo ${CUR_DATE}" Running [lbl] model"
 
 # SRC_CUR_OUTPUT=${SRC_OUTPUT}"order"
 # mkdir ${SRC_CUR_OUTPUT}
